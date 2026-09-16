@@ -1,41 +1,32 @@
-# This file stores configurations for your Shopify app.
-client_id = ""
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "thermoslip-order-printer"
+client_id = "9d6f5f485f916ddef3fb6a57db87a3a7"
+application_url = "https://thermoslip-order-printer.fly.dev"
+embedded = true
 
 [access_scopes]
-# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products"
+# write_orders is required for metafieldsSet on app-owned Order metafields ($app / print_status)
+scopes = "write_orders"
 
 [webhooks]
-api_version = "2025-10"
+api_version = "2026-07"
 
-  # Handled by: /app/routes/webhooks.app.uninstalled.tsx
   [[webhooks.subscriptions]]
-  uri = "/webhooks/app/uninstalled"
-  topics = ["app/uninstalled"]
+  uri = "/webhooks"
+  topics = [ "app/uninstalled", "app/scopes_update" ]
 
-  # Handled by: /app/routes/webhooks.app.scopes_update.tsx
-  [[webhooks.subscriptions]]
-  topics = [ "app/scopes_update" ]
-  uri = "/webhooks/app/scopes_update"
+[order.metafields.app.print_status]
+name = "ThermoSlip print status"
+type = "single_line_text_field"
 
-  # Webhooks can have filters
-  # Only receive webhooks for product updates with a product price >= 10.00
-  # See: https://shopify.dev/docs/apps/build/webhooks/customize/filters
-  # [[webhooks.subscriptions]]
-  # topics = ["products/update"]
-  # uri = "/webhooks/products/update"
-  # filter = "variants.price:>=10.00"
+[auth]
+redirect_urls = [
+  "https://thermoslip-order-printer.fly.dev/auth/callback",
+  "https://thermoslip-order-printer.fly.dev/auth/shopify/callback",
+  "https://thermoslip-order-printer.fly.dev/api/auth"
+]
 
-  # Mandatory compliance topic for public apps only
-  # See: https://shopify.dev/docs/apps/build/privacy-law-compliance
-  # [[webhooks.subscriptions]]
-  # uri = "/webhooks/customers/data_request"
-  # compliance_topics = ["customers/data_request"]
-
-  # [[webhooks.subscriptions]]
-  # uri = "/webhooks/customers/redact"
-  # compliance_topics = ["customers/redact"]
-
-  # [[webhooks.subscriptions]]
-  # uri = "/webhooks/shop/redact"
-  # compliance_topics = ["shop/redact"]
+[build]
+include_config_on_deploy = true
+automatically_update_urls_on_dev = true

@@ -1,0 +1,21 @@
+app = "thermoslip-order-printer"
+primary_region = "cdg"   # Paris — proche des marchands FR/EU
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1   # Évite cold start sur webhooks GDPR
+
+[env]
+  NODE_ENV = "production"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[mounts]
+  source = "thermoslip_data"
+  destination = "/data"

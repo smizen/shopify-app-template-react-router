@@ -4,17 +4,24 @@ import {
   AppDistribution,
   shopifyApp,
 } from "@shopify/shopify-app-react-router/server";
-import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
-import prisma from "./db.server";
+import { SQLiteSessionStorage } from "@shopify/shopify-app-session-storage-sqlite";
+import path from "node:path";
+
+// SQLite path: /data/sessions.db in production (Fly.io volume), local in dev
+const dbPath =
+  process.env.NODE_ENV === "production"
+    ? "/data/sessions.db"
+    : path.join(process.cwd(), "sessions.db");
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
-  apiVersion: ApiVersion.October25,
-  scopes: process.env.SCOPES?.split(","),
+  // Architecture §2 — API version 2026-07; update each stable quarterly release
+  apiVersion: ApiVersion.July25,
+  scopes: ["write_orders"],
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
-  sessionStorage: new PrismaSessionStorage(prisma),
+  sessionStorage: new SQLiteSessionStorage(dbPath),
   distribution: AppDistribution.AppStore,
   future: {
     expiringOfflineAccessTokens: true,
@@ -25,7 +32,7 @@ const shopify = shopifyApp({
 });
 
 export default shopify;
-export const apiVersion = ApiVersion.October25;
+export const apiVersion = ApiVersion.July25;
 export const addDocumentResponseHeaders = shopify.addDocumentResponseHeaders;
 export const authenticate = shopify.authenticate;
 export const unauthenticated = shopify.unauthenticated;
