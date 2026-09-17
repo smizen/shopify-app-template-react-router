@@ -1,0 +1,376 @@
+/*
+ * ThermoSlip — Print Styles
+ * @page 4×6 inch thermal label format.
+ *
+ * CSS Architecture:
+ * - .screen-only  → visible on screen, hidden at print time
+ * - #print-root   → always visible on screen; controls print output
+ * - .packing-slip → one 4×6 label per order; break-after: page
+ *
+ * We do NOT use `body > *:not(#print-root) { display: none }` because
+ * #print-root may be nested inside React root containers which would be
+ * hidden by such a rule, taking the content with them.
+ */
+
+/* ─── Print Media ─────────────────────────────────────────────────────────── */
+
+@media print {
+  /* Hide all non-print chrome (Polaris UI, toolbar, back button, nav, etc.) */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Only print-root and its children are visible and printed */
+  #print-root,
+  #print-root * {
+    visibility: visible !important;
+  }
+
+  /* Position print root at top-left of the physical page */
+  #print-root {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 4in !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Reset screen preview wrapper during print */
+  .print-preview-wrapper {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: auto !important;
+    background: transparent !important;
+    gap: 0 !important;
+  }
+
+  /* One 4×6 label per order */
+  .packing-slip {
+    width: 4in !important;
+    height: 6in !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    break-after: page !important;
+    page-break-after: always !important; /* legacy compat */
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: white !important;
+  }
+
+  /* No orphan page break on the last slip */
+  .packing-slip:last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  /* Prevent item rows from splitting across pages during multi-page (Story 3.3) */
+  .line-item-row {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
+/* ─── @page ────────────────────────────────────────────────────────────────── */
+
+/*
+ * @page sets the target media size to 4×6 inches with zero margin.
+ * Note: "zero margin" here means our CSS adds no margin.
+ * The browser print dialog and printer driver may still apply their own
+ * scaling, margins, or media-size detection. Physical zero-margin printing
+ * requires configuring the printer driver as "no margins / full bleed"
+ * — validated via physical test (Story 3.3 acceptance).
+ */
+@page {
+  size: 4in 6in;
+  margin: 0;
+}
+
+/* ─── Screen Preview ────────────────────────────────────────────────────────── */
+
+.print-preview-wrapper {
+  background-color: #f1f1f1;
+  padding: 24px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.print-preview-slip {
+  width: 4in;
+  min-height: 6in;
+  box-sizing: border-box;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 10pt;
+  color: #111;
+}
+
+/* ─── Slip Layout ─────────────────────────────────────────────────────────── */
+
+.slip-header {
+  padding: 8px 10px 6px;
+  border-bottom: 2px solid #111;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.slip-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.slip-shop-name {
+  font-weight: bold;
+  font-size: 11pt;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 1.8in;
+}
+
+.slip-order-date {
+  font-size: 8.5pt;
+  color: #333;
+}
+
+.slip-order-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.slip-order-name {
+  font-weight: 900;
+  font-size: 13pt;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+/* ─── Code 128 Barcode (Story 3.2, FR-7) ─────────────────────────────────── */
+
+.slip-barcode {
+  display: block;
+  margin-top: 3px;
+  /* Crucial for 203 DPI thermal print: natural 1:1 scale, zero CSS downscaling */
+  width: auto;
+  height: auto;
+}
+
+.slip-barcode-fallback {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+  font-size: 9pt;
+  color: #000;
+}
+
+/* ─── Carrier Bar (Top Third) ─────────────────────────────────────────────── */
+
+.slip-carrier-bar {
+  padding: 4px 10px;
+  background: #f4f4f4;
+  border-bottom: 1.5px solid #111;
+  font-size: 8.5pt;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media print {
+  .slip-carrier-bar {
+    background: transparent !important;
+    border-bottom: 2px solid #000 !important;
+  }
+}
+
+.slip-carrier-label {
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: #000;
+  font-size: 8pt;
+}
+
+.slip-carrier-name {
+  font-weight: 900;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Warnings (1-Bit Thermal Safe: Pure B&W, Zero Dithering) ─────────────── */
+
+.slip-warnings {
+  padding: 5px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px dashed #000;
+}
+
+.slip-warning-badge {
+  font-size: 8pt;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* White background + 2px solid black border */
+.slip-warning-badge--MULTI_QTY {
+  color: #000;
+  background: #fff;
+  border: 2px solid #000;
+}
+
+/* White background + 2px dashed black border */
+.slip-warning-badge--CUSTOMER_NOTE {
+  color: #000;
+  background: #fff;
+  border: 2px dashed #000;
+}
+
+/* Solid black inverted box — maximum impact at 203 DPI */
+.slip-warning-badge--EXPRESS {
+  color: #fff;
+  background: #000;
+  border: 2px solid #000;
+}
+
+/* ─── Line Items ─────────────────────────────────────────────────────────── */
+
+.slip-items {
+  padding: 6px 10px;
+  border-bottom: 1px dashed #000;
+}
+
+.slip-items-title {
+  font-weight: 900;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  color: #000;
+}
+
+.line-item-row {
+  display: flex;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 9.5pt;
+  line-height: 1.3;
+  align-items: baseline;
+}
+
+/* Massive, bold quantity indicator to eliminate warehouse picking errors */
+.line-item-qty {
+  font-size: 13pt;
+  font-weight: 900;
+  min-width: 26px;
+  flex-shrink: 0;
+  color: #000;
+  line-height: 1;
+}
+
+.line-item-details {
+  flex: 1;
+  overflow: hidden;
+}
+
+.line-item-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #000;
+}
+
+.line-item-variant {
+  font-size: 8.5pt;
+  color: #111;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 100% black monospace SKU — clean contrast without dithering */
+.line-item-sku {
+  font-size: 8pt;
+  font-weight: bold;
+  color: #000;
+  font-family: "Courier New", Courier, monospace;
+}
+
+/* ─── Shipping Address ───────────────────────────────────────────────────── */
+
+.slip-address {
+  padding: 5px 10px;
+  font-size: 9pt;
+  border-bottom: 1px dashed #000;
+  line-height: 1.4;
+  color: #000;
+}
+
+.slip-address-title {
+  font-weight: 900;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #000;
+  margin-bottom: 2px;
+}
+
+/* Recipient name must match carrier label exactly */
+.slip-recipient-name {
+  font-size: 10.5pt;
+  font-weight: 900;
+  color: #000;
+  margin-bottom: 2px;
+}
+
+/* ─── Customer Note ──────────────────────────────────────────────────────── */
+
+.slip-note {
+  padding: 5px 10px;
+  font-size: 9pt;
+  border-bottom: 1px dashed #000;
+  font-style: italic;
+  color: #000;
+}
+
+.slip-note-title {
+  font-weight: 900;
+  font-style: normal;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #000;
+  margin-bottom: 2px;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+
+.slip-footer {
+  padding: 6px 10px;
+  font-size: 8pt;
+  font-weight: 600;
+  color: #222;
+  text-align: center;
+  border-top: 1.5px solid #000;
+  margin-top: auto;
+}

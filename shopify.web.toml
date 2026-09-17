@@ -1,0 +1,6 @@
+name = "React Router"
+roles = ["frontend", "backend"]
+webhooks_path = "/webhooks"
+
+[commands]
+dev = "npx react-router dev"

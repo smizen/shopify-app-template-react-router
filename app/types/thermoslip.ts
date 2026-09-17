@@ -7,12 +7,8 @@
 
 export type WarningCode = "MULTI_QTY" | "CUSTOMER_NOTE" | "EXPRESS";
 
-export type WarningSeverity = "warning" | "info" | "urgent";
-
 export interface Warning {
   code: WarningCode;
-  label: string;
-  severity: WarningSeverity;
 }
 
 // ── Line Items ───────────────────────────────────────────────────────────────
@@ -36,12 +32,15 @@ export interface LineItem {
 // ── Orders ───────────────────────────────────────────────────────────────────
 
 export type PrintStatus = "printed" | null;
+export type OrderFilter = "ready" | "all";
 
 export interface Order {
   id: string;
   /** Display name e.g. "#1042" */
   name: string;
   createdAt: string;
+  /** Resolved customer/recipient name for packing slip and table view */
+  customerName: string;
   note: string | null;
   shippingMethod: string | null;
   shippingAddress: ShippingAddress | null;
@@ -54,6 +53,7 @@ export interface Order {
 }
 
 export interface ShippingAddress {
+  name?: string | null;
   formatted: string[];
   city: string | null;
   country: string | null;

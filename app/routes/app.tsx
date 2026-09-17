@@ -4,6 +4,8 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
+import { AppProvider as PolarisAppProvider } from "@shopify/polaris";
+import enTranslations from "@shopify/polaris/locales/en.json";
 import { authenticate } from "../shopify.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
@@ -19,12 +21,14 @@ export default function App() {
 
   return (
     <AppProvider embedded apiKey={apiKey}>
-      <s-app-nav>
-        <s-link href="/app">Ready to Pack</s-link>
-        <s-link href="/app/settings">Settings</s-link>
-        <s-link href="/app/billing">Plan & Billing</s-link>
-      </s-app-nav>
-      <Outlet />
+      <PolarisAppProvider i18n={enTranslations}>
+        <s-app-nav>
+          <s-link href="/app">Ready to Pack</s-link>
+          <s-link href="/app/settings">Settings</s-link>
+          <s-link href="/app/billing">Plan & Billing</s-link>
+        </s-app-nav>
+        <Outlet />
+      </PolarisAppProvider>
     </AppProvider>
   );
 }
