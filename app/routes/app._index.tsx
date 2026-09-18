@@ -20,6 +20,7 @@ import {
 } from "../lib/formatters";
 
 import { DEMO_ORDERS } from "../lib/demo-orders";
+import { AppIcon } from "../components/AppIcon";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
@@ -124,6 +125,7 @@ export default function Index() {
   return (
     <Page
       title="Ready to Pack"
+      titleMetadata={<AppIcon size={28} />}
       subtitle={prominentSubtitle}
       primaryAction={{
         content: printButtonText,

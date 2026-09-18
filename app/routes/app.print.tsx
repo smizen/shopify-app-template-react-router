@@ -8,10 +8,11 @@ import {
   getOrdersByIds,
   getShopName,
 } from "../lib/orders.server";
-import { PackingSlipPage } from "../components/PackingSlip/PackingSlipPage";
+import { PackingSlipPage, calculateTotalPages } from "../components/PackingSlip/PackingSlipPage";
 import { DEFAULT_SETTINGS } from "../types/thermoslip";
 import type { Order, Settings } from "../types/thermoslip";
 import { DEMO_ORDERS } from "../lib/demo-orders";
+import { AppIcon } from "../components/AppIcon";
 import printStyles from "../components/PackingSlip/print.css?url";
 
 export const links: LinksFunction = () => [
@@ -122,15 +123,23 @@ export default function PrintRoute() {
   };
 
   const orderCount = orders.length;
+  const totalSlipCount = orders.reduce(
+    (sum, order) => sum + calculateTotalPages(order.lineItems.length),
+    0
+  );
+
   const subtitle = error
     ? "Could not load orders"
     : orderCount > 0
-      ? `${orderCount} ${orderCount === 1 ? "order" : "orders"} ready to print${isReprint ? " (reprint)" : ""}`
+      ? totalSlipCount === orderCount
+        ? `${orderCount} ${orderCount === 1 ? "order" : "orders"} (${totalSlipCount} ${totalSlipCount === 1 ? "slip" : "slips"}) ready to print${isReprint ? " (reprint)" : ""}`
+        : `${orderCount} ${orderCount === 1 ? "order" : "orders"} (${totalSlipCount} slips) ready to print${isReprint ? " (reprint)" : ""}`
       : "No orders to print";
 
   return (
     <Page
       title="Print Packing Slips"
+      titleMetadata={<AppIcon size={28} />}
       subtitle={subtitle}
       backAction={{
         content: "Ready to Pack",
@@ -167,7 +176,8 @@ export default function PrintRoute() {
               <InlineStack align="space-between" blockAlign="center">
                 <BlockStack gap="100">
                   <Text as="p" variant="bodyMd" fontWeight="semibold">
-                    {orderCount} {orderCount === 1 ? "slip" : "slips"} ready
+                    {totalSlipCount} {totalSlipCount === 1 ? "slip" : "slips"} ready
+                    {totalSlipCount !== orderCount ? ` across ${orderCount} orders` : ""}
                   </Text>
                   <Text as="p" variant="bodySm" tone="subdued">
                     Preview below — click Print to send to your thermal printer.
@@ -181,7 +191,7 @@ export default function PrintRoute() {
                   onClick={handlePrint}
                   size="large"
                 >
-                  Print {orderCount === 1 ? "Slip" : `${orderCount} Slips`}
+                  Print {totalSlipCount === 1 ? "1 Slip" : `${totalSlipCount} Slips`}
                 </Button>
               </InlineStack>
             </Box>

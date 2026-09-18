@@ -21,7 +21,7 @@ const shopify = shopifyApp({
   scopes: ["write_orders"],
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
-  sessionStorage: new SQLiteSessionStorage(dbPath),
+  sessionStorage: new SQLiteSessionStorage(dbPath) as any,
   distribution: AppDistribution.AppStore,
   future: {
     expiringOfflineAccessTokens: true,
