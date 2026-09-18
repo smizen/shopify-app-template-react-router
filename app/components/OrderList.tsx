@@ -8,6 +8,7 @@ import {
   EmptyState,
   InlineStack,
   Box,
+  Button,
 } from "@shopify/polaris";
 import type { IndexTableProps } from "@shopify/polaris";
 import type { Order, OrderFilter, WarningCode } from "../types/thermoslip";
@@ -31,6 +32,7 @@ export interface OrderListProps {
   onSelectionChange?: IndexTableProps["onSelectionChange"];
   onSelectedOrderIdsChange?: (selectedIds: string[]) => void;
   promotedBulkActions?: IndexTableProps["promotedBulkActions"];
+  onReprint?: (orderId: string) => void;
 }
 
 export function OrderList({
@@ -42,6 +44,7 @@ export function OrderList({
   onSelectionChange,
   onSelectedOrderIdsChange,
   promotedBulkActions,
+  onReprint,
 }: OrderListProps) {
   const resourceName = {
     singular: "order",
@@ -141,7 +144,21 @@ export function OrderList({
         </IndexTable.Cell>
         <IndexTable.Cell>
           {isPrinted ? (
-            <Badge tone="info">Printed</Badge>
+            <InlineStack gap="200" align="start" blockAlign="center">
+              <Badge tone="info">Printed</Badge>
+              {onReprint && (
+                <span onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    size="micro"
+                    variant="plain"
+                    onClick={() => onReprint(order.id)}
+                    accessibilityLabel={`Reprint packing slip for ${order.name}`}
+                  >
+                    Reprint
+                  </Button>
+                </span>
+              )}
+            </InlineStack>
           ) : (
             <Badge tone="attention">Ready</Badge>
           )}

@@ -62,7 +62,9 @@ export interface ShippingAddress {
 // ── Settings (App-data metafield AppInstallation thermoslip/settings) ────────
 
 export interface Settings {
+  /** Store branding / logo in slip header */
   showLogo: boolean;
+  showBranding?: boolean;
   showAddress: boolean;
   showSku: boolean;
   showNotes: boolean;
@@ -105,6 +107,11 @@ export const FREE_TIER_LIMIT = 50;
 
 export type Plan = "free" | "pro";
 
+export interface QuotaState {
+  isUnlimited: boolean;
+  remaining: number | null;
+}
+
 // ── Loader return types ───────────────────────────────────────────────────────
 
 export interface AppIndexLoaderData {
@@ -113,5 +120,6 @@ export interface AppIndexLoaderData {
   usage: Usage;
   plan: Plan;
   isPro: boolean;
-  remaining: number;
+  quotaState: QuotaState;
+  remaining: number | null;
 }

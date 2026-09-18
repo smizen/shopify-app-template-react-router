@@ -73,34 +73,46 @@ export function formatItemsToPackCount(count: number, hasMoreItems: boolean = fa
  * - 0: "Print Packing Slips"
  * - 1: "Print 1 Packing Slip"
  * - X > 1: "Print X Packing Slips"
+ * - 1 (reprint): "Reprint 1 Packing Slip"
+ * - X > 1 (reprint): "Reprint X Packing Slips"
  */
-export function getPrintButtonText(selectedCount: number): string {
+export function getPrintButtonText(selectedCount: number, isReprintAll: boolean = false): string {
+  const verb = isReprintAll ? "Reprint" : "Print";
   if (selectedCount <= 0) {
-    return "Print Packing Slips";
+    return isReprintAll ? "Reprint Packing Slips" : "Print Packing Slips";
   }
   if (selectedCount === 1) {
-    return "Print 1 Packing Slip";
+    return `${verb} 1 Packing Slip`;
   }
-  return `Print ${selectedCount} Packing Slips`;
+  return `${verb} ${selectedCount} Packing Slips`;
 }
 
 /**
- * Returns the tooltip text for mixed selection (Ready + Printed).
- * Returns undefined if the selection is not mixed (e.g. only new orders, or only reprints, or 0).
- *
- * Examples:
- * - 8 new, 2 reprints: "Print 10 slips (8 new, 2 reprints)"
- * - 1 new, 1 reprint: "Print 2 slips (1 new, 1 reprint)"
- * - 5 new, 0 reprints: undefined
- * - 0 new, 3 reprints: undefined
+ * Returns the tooltip text for print button:
+ * - If remainingQuota is exceeded by newCount:
+ *   - remaining = 0: "Monthly free quota reached. Upgrade to Pro for unlimited printing."
+ *   - newCount > remaining: "X new prints required, only Y remaining."
+ * - Else if mixed selection (Ready + Printed): "Print X slips (Y new, Z reprints)"
+ * - Otherwise: undefined
  */
 export function getPrintButtonTooltip({
   newCount,
   reprintCount,
+  remainingQuota,
 }: {
   newCount: number;
   reprintCount: number;
+  remainingQuota?: number | null;
 }): string | undefined {
+  if (remainingQuota !== undefined && remainingQuota !== null) {
+    if (remainingQuota === 0 && newCount > 0) {
+      return "Monthly free quota reached. Upgrade to Pro for unlimited printing.";
+    }
+    if (newCount > remainingQuota) {
+      return `${newCount} new prints required, only ${remainingQuota} remaining.`;
+    }
+  }
+
   if (newCount > 0 && reprintCount > 0) {
     const total = newCount + reprintCount;
     const reprintLabel = reprintCount === 1 ? "reprint" : "reprints";

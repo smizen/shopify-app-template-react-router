@@ -21,26 +21,44 @@ import {
 
 import { DEMO_ORDERS } from "../lib/demo-orders";
 import { AppIcon } from "../components/AppIcon";
+import { getAppUsage, getQuotaState } from "../lib/quota.server";
+import { QuotaBanner } from "../components/QuotaBanner";
+import { billingService } from "../lib/plan.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
+  const justPrinted = url.searchParams.get("printed") === "true";
+
+  const isPro = await billingService.isPro({ admin, session });
 
   try {
-    const { orders, pageInfo, cost } = await getReadyToPackOrders(admin, cursor);
+    const [{ orders, pageInfo, cost }, { usage }] = await Promise.all([
+      getReadyToPackOrders(admin, cursor),
+      getAppUsage(admin),
+    ]);
+    const quotaState = getQuotaState(usage, isPro);
+
     return {
       orders,
       pageInfo,
       cost,
       isDemoMode: false,
       errorMessage: null,
+      justPrinted,
+      usage,
+      quotaState,
+      isPro,
     };
   } catch (error: any) {
     console.error("[Orders Loader] API Error:", error?.message || error);
     const isProtectedDataError =
       error?.message?.includes("protected-customer-data") ||
       error?.message?.includes("not approved to access the Order object");
+
+    const { usage } = await getAppUsage(admin);
+    const quotaState = getQuotaState(usage, isPro);
 
     return {
       orders: DEMO_ORDERS,
@@ -50,12 +68,26 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       errorMessage: isProtectedDataError
         ? "Access to Shopify Order data requires Protected Customer Data approval in Shopify Partners Dashboard (Apps > ThermoSlip > API access > Protected customer data). Displaying atelier preview orders with warnings below."
         : error?.message || "Failed to load orders from Shopify API",
+      justPrinted,
+      usage,
+      quotaState,
+      isPro,
     };
   }
 };
 
 export default function Index() {
-  const { orders, pageInfo, cost, isDemoMode, errorMessage } = useLoaderData<typeof loader>();
+  const {
+    orders,
+    pageInfo,
+    cost,
+    isDemoMode,
+    errorMessage,
+    justPrinted,
+    quotaState,
+    isPro,
+  } = useLoaderData<typeof loader>();
+  const [showPrintedBanner, setShowPrintedBanner] = useState(Boolean(justPrinted));
   const [selectedFilter, setSelectedFilter] = useState<OrderFilter>("ready");
   const navigate = useNavigate();
 
@@ -111,14 +143,38 @@ export default function Index() {
 
   const newCount = selectedOrders.filter((order) => order.printStatus === null).length;
   const reprintCount = selectedOrders.filter((order) => order.printStatus === "printed").length;
+  const isAllReprint = selectedOrders.length > 0 && newCount === 0;
 
-  const printButtonText = getPrintButtonText(selectedResources.length);
-  const printTooltip = getPrintButtonTooltip({ newCount, reprintCount });
+  // Quota enforcement on print button:
+  // Disables print button if new prints require more quota than remaining
+  const isQuotaExceeded =
+    !isPro &&
+    quotaState.remaining !== null &&
+    (quotaState.remaining === 0 ? newCount > 0 : newCount > quotaState.remaining);
+
+  const isPrintDisabled = selectedResources.length === 0 || isQuotaExceeded;
+
+  const printButtonText = getPrintButtonText(selectedResources.length, isAllReprint);
+  const printTooltip = getPrintButtonTooltip({
+    newCount,
+    reprintCount,
+    remainingQuota: quotaState.remaining,
+  });
 
   const handlePrint = () => {
-    if (selectedResources.length === 0) return;
+    if (selectedResources.length === 0 || isQuotaExceeded) return;
     const params = new URLSearchParams();
     params.set("orders", selectedResources.join(","));
+    if (isAllReprint) {
+      params.set("reprint", "true");
+    }
+    navigate(`/app/print?${params.toString()}`);
+  };
+
+  const handleSingleReprint = (orderId: string) => {
+    const params = new URLSearchParams();
+    params.set("orders", orderId);
+    params.set("reprint", "true");
     navigate(`/app/print?${params.toString()}`);
   };
 
@@ -129,12 +185,27 @@ export default function Index() {
       subtitle={prominentSubtitle}
       primaryAction={{
         content: printButtonText,
-        disabled: selectedResources.length === 0,
+        disabled: isPrintDisabled,
         onAction: handlePrint,
         helpText: printTooltip,
       }}
     >
       <BlockStack gap="400">
+        <QuotaBanner quotaState={quotaState} />
+
+        {showPrintedBanner && (
+          <Banner
+            title="Packing slips marked as printed"
+            tone="success"
+            onDismiss={() => setShowPrintedBanner(false)}
+          >
+            <p>
+              The selected orders have been marked as Printed and moved out of
+              the Ready to Pack queue.
+            </p>
+          </Banner>
+        )}
+
         {isDemoMode && errorMessage && (
           <Banner title="Atelier Preview Mode" tone="warning">
             <p>{errorMessage}</p>
@@ -159,6 +230,7 @@ export default function Index() {
               selectedResources={selectedResources}
               allResourcesSelected={allResourcesSelected}
               onSelectionChange={handleSelectionChange}
+              onReprint={handleSingleReprint}
               promotedBulkActions={[
                 {
                   content: printButtonText,

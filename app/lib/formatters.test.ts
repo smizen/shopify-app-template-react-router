@@ -91,6 +91,12 @@ describe("getPrintButtonText", () => {
     expect(getPrintButtonText(10)).toBe("Print 10 Packing Slips");
     expect(getPrintButtonText(50)).toBe("Print 50 Packing Slips");
   });
+
+  it("returns 'Reprint' variants when isReprintAll is true", () => {
+    expect(getPrintButtonText(0, true)).toBe("Reprint Packing Slips");
+    expect(getPrintButtonText(1, true)).toBe("Reprint 1 Packing Slip");
+    expect(getPrintButtonText(3, true)).toBe("Reprint 3 Packing Slips");
+  });
 });
 
 describe("getPrintButtonTooltip", () => {
@@ -124,6 +130,29 @@ describe("getPrintButtonTooltip", () => {
     expect(getPrintButtonTooltip({ newCount: 9, reprintCount: 1 })).toBe(
       "Print 10 slips (9 new, 1 reprint)"
     );
+  });
+
+  it("returns quota reached tooltip when remaining is 0 and newCount > 0", () => {
+    expect(
+      getPrintButtonTooltip({ newCount: 1, reprintCount: 0, remainingQuota: 0 }),
+    ).toBe("Monthly free quota reached. Upgrade to Pro for unlimited printing.");
+
+    // Reprints only at remaining = 0 does NOT show quota reached
+    expect(
+      getPrintButtonTooltip({ newCount: 0, reprintCount: 2, remainingQuota: 0 }),
+    ).toBeUndefined();
+  });
+
+  it("returns specific count required when newCount > remainingQuota", () => {
+    expect(
+      getPrintButtonTooltip({ newCount: 3, reprintCount: 2, remainingQuota: 2 }),
+    ).toBe("3 new prints required, only 2 remaining.");
+  });
+
+  it("ignores remainingQuota when isPro (remainingQuota is null)", () => {
+    expect(
+      getPrintButtonTooltip({ newCount: 3, reprintCount: 2, remainingQuota: null }),
+    ).toBe("Print 5 slips (3 new, 2 reprints)");
   });
 });
 

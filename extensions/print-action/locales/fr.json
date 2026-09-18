@@ -1,7 +1,6 @@
 {
-  "warningTitle": "Titre",
-  "warningBody": "Afficher une bannière d'avertissement lorsque le formulaire est dans un état invalide.",
-  "documents": "Documents",
-  "document1": "Document 1",
-  "document2": "Document 2"
+  "name": "Bordereaux d'expédition ThermoSlip",
+  "noOrders": "Veuillez sélectionner au moins une commande pour imprimer les bordereaux.",
+  "limitExceeded": "Limite de commandes dépassée. OrderJet supporte jusqu'à 50 commandes à la fois.",
+  "readyToPrint": "Prêt pour l'impression des bordereaux thermiques."
 }

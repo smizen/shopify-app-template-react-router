@@ -12,9 +12,8 @@
     </radialGradient>
   </defs>
 
-  <!-- Fond clair et bordure subtile -->
-  <rect width="512" height="512" rx="112" fill="url(#bgGlow)"/>
-  <rect width="512" height="512" rx="112" stroke="#F1F5F9" stroke-width="8"/>
+  <!-- Fond Indigo vif -->
+  <rect width="512" height="512" rx="112" fill="#4F46E5"/>
 
   <!-- Groupe principal incliné pour le dynamisme (Vol vers le haut à droite) -->
   <g transform="translate(256, 256) rotate(20) translate(-256, -256)">

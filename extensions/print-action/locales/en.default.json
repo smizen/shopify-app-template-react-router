@@ -1,7 +1,6 @@
 {
-  "warningTitle": "Title",
-  "warningBody": "Show warning banner when form is in an invalid state.",
-  "documents": "Documents",
-  "document1": "Document 1",
-  "document2": "Document 2"
+  "name": "ThermoSlip Packing Slips",
+  "noOrders": "Please select at least one order to print packing slips.",
+  "limitExceeded": "Order limit exceeded. OrderJet supports up to 50 at once. Please select 50 or fewer.",
+  "readyToPrint": "Ready to print thermal packing slips."
 }
