@@ -46,10 +46,33 @@ export function QuotaBanner({ quotaState, onUpgradeClick }: QuotaBannerProps) {
   }
 
   const pluralSuffix = remaining === 1 ? "print" : "prints";
-  const tone = remaining <= 10 ? "warning" : "info";
+
+  if (remaining <= 10) {
+    return (
+      <Banner
+        tone="info"
+        action={
+          onUpgradeClick
+            ? {
+                content: "See plans",
+                onAction: onUpgradeClick,
+                url: "/app/billing",
+              }
+            : {
+                content: "See plans",
+                url: "/app/billing",
+              }
+        }
+      >
+        <p>
+          <strong>{remaining} {pluralSuffix}</strong> remaining this month. Upgrade to Pro for unlimited printing.
+        </p>
+      </Banner>
+    );
+  }
 
   return (
-    <Banner tone={tone}>
+    <Banner tone="info">
       <p>
         <strong>{remaining} {pluralSuffix}</strong> remaining this month
       </p>

@@ -13,7 +13,7 @@ describe("QuotaBanner Component (Story 5.1, FR-14)", () => {
     expect(html).toBe("");
   });
 
-  it("renders remaining prints banner when quota is available", () => {
+  it("renders remaining prints banner without action when quota is plentiful (>10)", () => {
     const html = renderToStaticMarkup(
       <AppProvider i18n={enTranslations}>
         <QuotaBanner quotaState={{ isUnlimited: false, remaining: 50 }} />
@@ -21,16 +21,29 @@ describe("QuotaBanner Component (Story 5.1, FR-14)", () => {
     );
     expect(html).toContain("50 prints");
     expect(html).toContain("remaining this month");
+    expect(html).not.toContain("See plans");
   });
 
-  it("handles singular print correctly", () => {
+  it("renders warning copy and 'See plans' action when remaining <= 10", () => {
+    const html = renderToStaticMarkup(
+      <AppProvider i18n={enTranslations}>
+        <QuotaBanner quotaState={{ isUnlimited: false, remaining: 8 }} />
+      </AppProvider>,
+    );
+    expect(html).toContain("8 prints");
+    expect(html).toContain("remaining this month. Upgrade to Pro for unlimited printing.");
+    expect(html).toContain("See plans");
+  });
+
+  it("handles singular print correctly with 'See plans' action", () => {
     const html = renderToStaticMarkup(
       <AppProvider i18n={enTranslations}>
         <QuotaBanner quotaState={{ isUnlimited: false, remaining: 1 }} />
       </AppProvider>,
     );
     expect(html).toContain("1 print");
-    expect(html).toContain("remaining this month");
+    expect(html).toContain("remaining this month. Upgrade to Pro for unlimited printing.");
+    expect(html).toContain("See plans");
   });
 
   it("renders warning and upgrade action when remaining is 0", () => {
