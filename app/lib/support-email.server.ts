@@ -127,7 +127,7 @@ export class ResendSupportEmailService implements SupportEmailService {
     this.fromEmail =
       options?.fromEmail ||
       process.env.SUPPORT_FROM_EMAIL ||
-      "ThermoSlip Support <support@devcraft-solutions.org>";
+      "ThermoSlip Support <onboarding@resend.dev>";
     this.toEmail =
       options?.toEmail ||
       process.env.SUPPORT_DESTINATION_EMAIL ||
