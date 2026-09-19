@@ -7,7 +7,12 @@ export default async () => {
 
 function Extension() {
   const { data } = shopify;
-  const selectedOrders = data?.selected ?? [];
+  const selectedOrders =
+    data?.selected && data.selected.length > 0
+      ? data.selected
+      : data?.order
+        ? [data.order]
+        : [];
   const count = selectedOrders.length;
 
   let banner = null;

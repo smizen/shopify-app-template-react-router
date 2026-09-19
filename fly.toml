@@ -1,21 +1,27 @@
-app = "thermoslip-order-printer"
-primary_region = "cdg"   # Paris — proche des marchands FR/EU
+# fly.toml app configuration file generated for thermoslip-order-printer on 2026-09-18T23:41:18+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'thermoslip-order-printer'
+primary_region = 'cdg'
+
+[build]
+[env]
+  NODE_ENV = 'production'
+
+[[mounts]]
+  source = 'prisma_data'
+  destination = '/data'
 
 [http_service]
   internal_port = 3000
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
-  min_machines_running = 1   # Évite cold start sur webhooks GDPR
-
-[env]
-  NODE_ENV = "production"
+  min_machines_running = 1
 
 [[vm]]
-  memory = "512mb"
-  cpu_kind = "shared"
+  memory = '512mb'
   cpus = 1
-
-[mounts]
-  source = "thermoslip_data"
-  destination = "/data"
+  memory_mb = 512

@@ -56,7 +56,7 @@ export default function PrivacyPolicy() {
       <section style={{ marginBottom: "24px" }}>
         <h2 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>5. Contact Information</h2>
         <p>
-          For privacy inquiries or technical questions regarding ThermoSlip, please contact our privacy officer at: <a href="mailto:privacy@thermoslip.app">privacy@thermoslip.app</a>.
+          For privacy inquiries or technical questions regarding ThermoSlip, please contact Devcraft Solutions at: <a href="mailto:contact@devcraft-solutions.org">contact@devcraft-solutions.org</a>.
         </p>
       </section>
     </div>

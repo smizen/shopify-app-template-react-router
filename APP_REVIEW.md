@@ -53,3 +53,4 @@ Implemented in `/webhooks` and verified with HMAC authentication via `@shopify/s
 - Native admin action extension: `admin.order-index.selection-print-action.render` for batch printing from the Orders list.
 - All merchant-facing copy is 100% in English (`NFR-LANG-01`).
 - Public Privacy Policy URL: `https://thermoslip-order-printer.fly.dev/privacy`
+- Developer / Support Contact: `contact@devcraft-solutions.org` (Devcraft Solutions)
