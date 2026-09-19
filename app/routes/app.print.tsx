@@ -73,8 +73,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     };
   }
 
-  // Handle Demo Mode IDs (Atelier preview)
-  const isDemo = validatedIds.some((id) => id.includes("demo-"));
+  // Handle Demo Mode IDs (Atelier preview) - Development/Test only
+  const isDemo =
+    process.env.NODE_ENV !== "production" &&
+    validatedIds.some((id) => id.includes("demo-"));
   if (isDemo) {
     const [settings, shopName] = await Promise.all([
       getAppSettings(admin),

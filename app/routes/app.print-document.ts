@@ -6,7 +6,7 @@ import {
   getShopName,
 } from "../lib/orders.server";
 import { DEMO_ORDERS } from "../lib/demo-orders";
-import { DEFAULT_SETTINGS } from "../types/thermoslip";
+import { DEFAULT_SETTINGS, type Order } from "../types/thermoslip";
 import { renderStaticPackingSlipsHtml } from "../lib/static-slip-renderer.server";
 import { getAppSettings } from "../lib/metafields.server";
 import { reservePrintQuota } from "../lib/quota.server";
@@ -75,8 +75,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   // Handle Demo Mode IDs (Atelier preview)
-  const isDemo = validatedIds.some((id) => id.includes("demo-"));
-  let orders = [];
+  const isProduction = process.env.NODE_ENV === "production";
+  const isDemo = !isProduction && validatedIds.some((id) => id.includes("demo-"));
+  let orders: Order[] = [];
   let shopName = "ThermoSlip Store";
 
   if (isDemo) {
@@ -95,7 +96,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       shopName = fetchedShopName;
     } catch (error: any) {
       console.error("[print-document] Error fetching orders for print:", error?.message || error);
-      // Gracefully render preview slips so the Shopify Admin print action iframe never crashes
+      if (isProduction) {
+        return cors(
+          new Response(
+            `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Error</title><style>body{font-family:system-ui,-apple-system,sans-serif;padding:32px;text-align:center;color:#202223;}h1{font-size:20px;color:#d82c0d;margin-bottom:8px;}p{font-size:14px;color:#6d7175;}</style></head><body><h1>Unable to load orders</h1><p>We couldn't load your Shopify orders. Please try again.</p></body></html>`,
+            {
+              status: 500,
+              headers: { "Content-Type": "text/html; charset=utf-8" },
+            },
+          ),
+        );
+      }
+      // Development only fallback
       orders = DEMO_ORDERS.slice(0, Math.max(1, Math.min(validatedIds.length, DEMO_ORDERS.length)));
       shopName = "Atelier Preview";
     }

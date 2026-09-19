@@ -13,7 +13,7 @@ import {
 import { authenticate } from "../shopify.server";
 import { getReadyToPackOrders } from "../lib/orders.server";
 import { OrderList } from "../components/OrderList";
-import type { Order, OrderFilter } from "../types/thermoslip";
+import type { Order, OrderFilter, Usage } from "../types/thermoslip";
 import {
   getPrintButtonText,
   getPrintButtonTooltip,
@@ -58,9 +58,36 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       error?.message?.includes("protected-customer-data") ||
       error?.message?.includes("not approved to access the Order object");
 
-    const { usage } = await getAppUsage(admin);
+    const isProduction = process.env.NODE_ENV === "production";
+
+    let usage: Usage = { period: "", consumed: 0, countedOrderIds: [] };
+    try {
+      const usageData = await getAppUsage(admin);
+      usage = usageData.usage;
+    } catch {
+      // safe fallback for usage metrics
+    }
     const quotaState = getQuotaState(usage, isPro);
 
+    // Production safety guard: Never leak mock/demo orders to live merchants
+    if (isProduction) {
+      return {
+        orders: [],
+        pageInfo: { hasNextPage: false, endCursor: null },
+        cost: undefined,
+        isDemoMode: false,
+        errorMessage: isProtectedDataError
+          ? "Access to Shopify Order data requires Protected Customer Data approval. Please contact support or check your app settings."
+          : "We couldn't load your Shopify orders. Please try again.",
+        justPrinted,
+        usage,
+        quotaState,
+        isPro,
+        isProduction: true,
+      };
+    }
+
+    // Development & Test environments only: fallback to atelier preview mode
     return {
       orders: DEMO_ORDERS,
       pageInfo: { hasNextPage: false, endCursor: null },
@@ -73,7 +100,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       usage,
       quotaState,
       isPro,
-      isProduction: process.env.NODE_ENV === "production",
+      isProduction: false,
     };
   }
 };
