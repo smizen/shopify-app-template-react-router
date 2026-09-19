@@ -171,6 +171,52 @@ export class ResendSupportEmailService implements SupportEmailService {
           response.status,
           errText
         );
+
+        // Resend sandbox mode: when sending from onboarding@resend.dev, Resend restricts
+        // recipients to the account owner until a custom domain is verified.
+        // Automatically route to the account owner so testing works seamlessly.
+        const sandboxMatch = errText.match(
+          /You can only send testing emails to your own email address \(([^)]+)\)/i
+        );
+        if (sandboxMatch && sandboxMatch[1] && sandboxMatch[1] !== this.toEmail) {
+          const ownerEmail = sandboxMatch[1];
+          console.warn(
+            `[SupportEmailService] Resend sandbox mode detected. Rerouting test message to account owner (${ownerEmail}).`
+          );
+
+          const sandboxTextBody = [
+            `[RESEND SANDBOX NOTICE: Forwarded to account owner ${ownerEmail} because domain is unverified. Intended production recipient: ${this.toEmail}]`,
+            ``,
+            textBody,
+          ].join("\n");
+
+          const retryResponse = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${this.apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: this.fromEmail,
+              to: [ownerEmail],
+              reply_to: payload.replyTo || undefined,
+              subject: emailSubject,
+              text: sandboxTextBody,
+            }),
+          });
+
+          if (retryResponse.ok) {
+            return { success: true };
+          }
+
+          const retryErrText = await retryResponse.text().catch(() => "");
+          console.error(
+            "[SupportEmailService Resend Retry Error]",
+            retryResponse.status,
+            retryErrText
+          );
+        }
+
         return {
           success: false,
           error: "We couldn't send your message. Please try again.",

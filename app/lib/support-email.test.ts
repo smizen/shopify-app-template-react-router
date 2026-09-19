@@ -218,6 +218,56 @@ describe("SupportEmailService & Validation", () => {
       expect(body.text).toContain("My thermal printer skips barcodes.");
     });
 
+    it("automatically retries sending to account owner when Resend returns sandbox restriction error", async () => {
+      const mockFetch = vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 403,
+          text: async () =>
+            JSON.stringify({
+              statusCode: 403,
+              name: "validation_error",
+              message:
+                "You can only send testing emails to your own email address (owner@example.com). To send emails to other recipients, please verify a domain at resend.com/domains.",
+            }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ id: "sandbox-retry-id" }),
+        });
+      global.fetch = mockFetch;
+
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      const service = new ResendSupportEmailService({
+        apiKey: "re_sandbox_key",
+        fromEmail: "ThermoSlip Support <onboarding@resend.dev>",
+        toEmail: "contact@devcraft-solutions.org",
+      });
+
+      const payload: SupportMessagePayload = {
+        shopDomain: "dev-store.myshopify.com",
+        subject: "Sandbox test",
+        message: "This should be rerouted to owner@example.com.",
+        plan: "Free",
+      };
+
+      const result = await service.sendSupportMessage(payload);
+
+      expect(result.success).toBe(true);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+
+      // Verify retry called with owner email
+      const retryBody = JSON.parse(mockFetch.mock.calls[1][1].body);
+      expect(retryBody.to).toEqual(["owner@example.com"]);
+      expect(retryBody.text).toContain("RESEND SANDBOX NOTICE");
+
+      consoleWarnSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+    });
+
     it("handles Resend API error gracefully without leaking secrets to the caller", async () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
