@@ -33,9 +33,9 @@ export interface BillingContext {
 }
 
 export interface BillingService {
-  getPlan(context: BillingContext): Promise<Plan>;
-  isPro(context: BillingContext): Promise<boolean>;
-  getUpgradeUrl(context: BillingContext): Promise<string>;
+  getPlan(context?: BillingContext): Promise<Plan>;
+  isPro(context?: BillingContext): Promise<boolean>;
+  getUpgradeUrl(context?: BillingContext): Promise<string>;
 }
 
 export const PARTNER_ACTIVE_SUBSCRIPTION_QUERY = `#graphql
