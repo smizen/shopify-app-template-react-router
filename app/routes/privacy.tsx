@@ -24,7 +24,7 @@ export default function PrivacyPolicy() {
         <h2 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>2. Data We Process (Protected Customer Data)</h2>
         <p>To render packing slips, ThermoSlip temporarily reads the following order data via Shopify GraphQL Admin API:</p>
         <ul>
-          <li><strong>Customer name</strong> &amp; <strong>shipping address</strong> (recipient address printed on packing slip)</li>
+          <li><strong>Recipient name &amp; shipping address</strong> (derived from order shipping details to print the packing slip)</li>
           <li><strong>Order line items</strong> (product titles, SKU, quantities, variant names)</li>
           <li><strong>Order notes and attributes</strong> (packing instructions)</li>
           <li><strong>Order tracking &amp; fulfillment status</strong></li>
@@ -49,16 +49,21 @@ export default function PrivacyPolicy() {
         <ul>
           <li><strong>customers/data_request</strong>: Responds immediately confirming zero PII is stored.</li>
           <li><strong>customers/redact</strong>: Responds immediately confirming zero PII is retained.</li>
-          <li><strong>shop/redact</strong>: Cleans up merchant installation data.</li>
+          <li><strong>shop/redact</strong>: Cleans up merchant installation and session data.</li>
         </ul>
       </section>
 
-      <section style={{ marginBottom: "24px" }}>
+      <section style={{ marginBottom: "32px" }}>
         <h2 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>5. Contact Information</h2>
         <p>
-          For privacy inquiries or technical questions regarding ThermoSlip, please contact Devcraft Solutions at: <a href="mailto:contact@devcraft-solutions.org">contact@devcraft-solutions.org</a>.
+          For privacy inquiries or technical questions regarding ThermoSlip, please contact Devcraft Solutions at: <a href="mailto:contact@devcraft-solutions.org" style={{ color: "#008060" }}>contact@devcraft-solutions.org</a>.
         </p>
       </section>
+
+      <footer style={{ borderTop: "1px solid #e1e3e5", paddingTop: "16px", fontSize: "14px", color: "#6d7175", display: "flex", gap: "16px" }}>
+        <span>&copy; {new Date().getFullYear()} Devcraft Solutions</span>
+        <a href="/terms" style={{ color: "#008060", textDecoration: "none" }}>Terms of Service</a>
+      </footer>
     </div>
   );
 }
