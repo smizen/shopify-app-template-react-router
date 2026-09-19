@@ -113,7 +113,14 @@ export default function SettingsRoute() {
   };
 
   const handlePreviewNewTab = () => {
-    window.open("/app/print?sample=true", "_blank");
+    const params = new URLSearchParams({
+      showLogo: String(formState.showLogo),
+      showAddress: String(formState.showAddress),
+      showSku: String(formState.showSku),
+      showNotes: String(formState.showNotes),
+      footer: formState.footer,
+    });
+    window.open(`/preview-sample?${params.toString()}`, "_blank");
   };
 
   return (
