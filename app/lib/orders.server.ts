@@ -20,10 +20,6 @@ query GetReadyToPackOrders($cursor: String) {
       name
       createdAt
       note
-      customer {
-        firstName
-        lastName
-      }
       shippingLine {
         title
       }
@@ -103,10 +99,6 @@ query GetOrdersByIds($ids: [ID!]!) {
       name
       createdAt
       note
-      customer {
-        firstName
-        lastName
-      }
       shippingAddress {
         name
         formatted
