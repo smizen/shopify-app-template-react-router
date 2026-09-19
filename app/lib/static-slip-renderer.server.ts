@@ -11,17 +11,20 @@ function getPrintCss(): string {
   if (cachedPrintCss && process.env.NODE_ENV === "production") {
     return cachedPrintCss;
   }
-  try {
-    const cssPath = path.resolve(
-      process.cwd(),
-      "app/components/PackingSlip/print.css",
-    );
-    cachedPrintCss = fs.readFileSync(cssPath, "utf-8");
-    return cachedPrintCss;
-  } catch (err) {
-    console.warn("[static-slip-renderer] Failed to read print.css from disk:", err);
-    return "";
+  const possiblePaths = [
+    path.resolve(process.cwd(), "app/components/PackingSlip/print.css"),
+    path.resolve(process.cwd(), "public/print.css"),
+  ];
+  for (const p of possiblePaths) {
+    try {
+      if (fs.existsSync(p)) {
+        cachedPrintCss = fs.readFileSync(p, "utf-8");
+        return cachedPrintCss;
+      }
+    } catch {}
   }
+  console.warn("[static-slip-renderer] Failed to read print.css from disk");
+  return "";
 }
 
 function escapeHtml(str: string | null | undefined): string {

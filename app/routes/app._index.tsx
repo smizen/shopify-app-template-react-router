@@ -50,6 +50,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       usage,
       quotaState,
       isPro,
+      isProduction: process.env.NODE_ENV === "production",
     };
   } catch (error: any) {
     console.error("[Orders Loader] API Error:", error?.message || error);
@@ -72,6 +73,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       usage,
       quotaState,
       isPro,
+      isProduction: process.env.NODE_ENV === "production",
     };
   }
 };
@@ -84,8 +86,10 @@ export default function Index() {
     isDemoMode,
     errorMessage,
     justPrinted,
+    usage,
     quotaState,
     isPro,
+    isProduction,
   } = useLoaderData<typeof loader>();
   const [showPrintedBanner, setShowPrintedBanner] = useState(Boolean(justPrinted));
   const [selectedFilter, setSelectedFilter] = useState<OrderFilter>("ready");
@@ -212,7 +216,7 @@ export default function Index() {
           </Banner>
         )}
 
-        {cost && (
+        {!isProduction && cost && (
           <Banner title="GraphQL Query Cost (Debug)" tone="info">
             <p>
               Requested Cost: <strong>{cost.requestedQueryCost}</strong> | Actual Cost:{" "}
