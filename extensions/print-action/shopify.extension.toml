@@ -6,7 +6,10 @@ handle = "print-action"
 type = "ui_extension"
 uid = "49839740-2235-40ea-c549-aec26a9dfb64973e240e"
 
-# Only 1 target can be specified for each admin print action extension
 [[extensions.targeting]]
 module = "./src/PrintActionExtension.jsx"
 target = "admin.order-index.selection-print-action.render"
+
+[[extensions.targeting]]
+module = "./src/PrintActionExtension.jsx"
+target = "admin.order-details.print-action.render"

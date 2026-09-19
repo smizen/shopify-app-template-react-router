@@ -1,6 +1,6 @@
-# Shopify App Review — ThermoSlip ‑ Order Printer
+# Shopify App Review — ThermoSlip Order Print
 
-**App Name:** ThermoSlip ‑ Order Printer  
+**App Name:** ThermoSlip Order Print  
 **Technical Identifier / Slug:** `thermoslip-order-printer`  
 **API Version:** `2026-07`  
 **Architecture:** Zero-PII / In-Memory Client-Rendered Thermal Packing Slips  

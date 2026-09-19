@@ -6,7 +6,7 @@ import styles from "./styles.module.css";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "ThermoSlip ‑ Thermal Packing Slips & Order Printer for Shopify" },
+    { title: "ThermoSlip Order Print — Thermal Packing Slips for Shopify" },
     {
       name: "description",
       content:
@@ -40,7 +40,7 @@ export default function App() {
           />
           <div className={styles.brandText}>
             <span className={styles.brandName}>ThermoSlip</span>
-            <span className={styles.brandTag}>Order Printer</span>
+            <span className={styles.brandTag}>Order Print</span>
           </div>
         </div>
         <div className={styles.badge}>

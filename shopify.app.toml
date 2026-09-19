@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "9d6f5f485f916ddef3fb6a57db87a3a7"
-name = "ThermoSlip Order Printer"
+name = "ThermoSlip Order Print"
 application_url = "https://thermoslip-order-printer.fly.dev"
 embedded = true
 

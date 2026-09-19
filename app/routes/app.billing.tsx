@@ -115,7 +115,16 @@ export default function BillingPage() {
                         {isPro ? (
                           <Badge tone="success">Current Plan</Badge>
                         ) : (
-                          <Button variant="primary" url={upgradeUrl}>
+                          <Button
+                            variant="primary"
+                            url={upgradeUrl}
+                            target="_top"
+                            onClick={() => {
+                              if (typeof window !== "undefined" && window.top) {
+                                window.top.location.href = upgradeUrl;
+                              }
+                            }}
+                          >
                             Upgrade to Pro
                           </Button>
                         )}

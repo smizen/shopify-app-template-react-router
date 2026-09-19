@@ -186,9 +186,71 @@ describe("BillingService — Shopify App Pricing Partner API (Story 5.2, FR-15)"
     const url = await billingService.getUpgradeUrl({
       shopDomain: "my-store.myshopify.com",
     });
-    expect(url).toBe("https://my-store.myshopify.com/admin/charges/pricing_plans");
+    expect(url).toBe("https://admin.shopify.com/store/my-store/charges/thermoslip-order-printer/pricing_plans");
 
     const fallbackUrl = await billingService.getUpgradeUrl({});
     expect(fallbackUrl).toBe("/app/billing");
+  });
+
+  it("returns 'pro' via Admin API when active subscription exists with status ACTIVE", async () => {
+    const mockAdmin = {
+      graphql: vi.fn().mockResolvedValue({
+        json: async () => ({
+          data: {
+            currentAppInstallation: {
+              id: "gid://shopify/AppInstallation/123",
+              activeSubscriptions: [
+                {
+                  id: "gid://shopify/AppSubscription/sub-pro",
+                  name: "Pro Monthly",
+                  status: "ACTIVE",
+                  test: false,
+                },
+              ],
+            },
+          },
+        }),
+      }),
+    };
+
+    const plan = await billingService.getPlan({ admin: mockAdmin as any });
+    const isPro = await billingService.isPro({ admin: mockAdmin as any });
+
+    expect(plan).toBe("pro");
+    expect(isPro).toBe(true);
+    expect(mockAdmin.graphql).toHaveBeenCalledTimes(2);
+  });
+
+  it("returns 'free' via Admin API when activeSubscriptions is empty", async () => {
+    const mockAdmin = {
+      graphql: vi.fn().mockResolvedValue({
+        json: async () => ({
+          data: {
+            currentAppInstallation: {
+              id: "gid://shopify/AppInstallation/123",
+              activeSubscriptions: [],
+            },
+          },
+        }),
+      }),
+    };
+
+    const plan = await billingService.getPlan({ admin: mockAdmin as any });
+    const isPro = await billingService.isPro({ admin: mockAdmin as any });
+
+    expect(plan).toBe("free");
+    expect(isPro).toBe(false);
+  });
+
+  it("fail-safes to 'free' when Admin API throws an error", async () => {
+    const mockAdmin = {
+      graphql: vi.fn().mockRejectedValue(new Error("Admin GraphQL error")),
+    };
+
+    const plan = await billingService.getPlan({ admin: mockAdmin as any });
+    const isPro = await billingService.isPro({ admin: mockAdmin as any });
+
+    expect(plan).toBe("free");
+    expect(isPro).toBe(false);
   });
 });

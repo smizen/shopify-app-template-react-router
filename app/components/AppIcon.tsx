@@ -16,7 +16,7 @@ export function AppIcon({ size = 32, className, style }: AppIconProps) {
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       style={{ display: "inline-block", verticalAlign: "middle", ...style }}
-      aria-label="ThermoSlip / OrderJet Icon"
+      aria-label="ThermoSlip Order Print Icon"
     >
       <defs>
         <filter id="appIconSoftShadow" x="-20%" y="-20%" width="140%" height="140%">

@@ -1,6 +1,6 @@
 {
   "name": "Bordereaux d'expédition ThermoSlip",
   "noOrders": "Veuillez sélectionner au moins une commande pour imprimer les bordereaux.",
-  "limitExceeded": "Limite de commandes dépassée. OrderJet supporte jusqu'à 50 commandes à la fois.",
+  "limitExceeded": "Limite de commandes dépassée. ThermoSlip supporte jusqu'à 50 commandes à la fois.",
   "readyToPrint": "Prêt pour l'impression des bordereaux thermiques."
 }

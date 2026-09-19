@@ -218,7 +218,7 @@ export default function SettingsRoute() {
                     maxLength={120}
                     showCharacterCount
                     autoComplete="off"
-                    helpText="Leave empty to display default branding ('ThermoSlip · Order Printer'). Max 120 characters."
+                    helpText="Leave empty to display default branding ('ThermoSlip · Order Print'). Max 120 characters."
                     error={fieldErrors?.footer}
                   />
                 </BlockStack>

@@ -175,7 +175,7 @@ export function PackingSlipPage({ order, settings, shopName }: PackingSlipPagePr
 
             {/* ── Footer ─────────────────────────────────────────────────────── */}
             <div className="slip-footer">
-              {settings.footer ? settings.footer : "ThermoSlip · Order Printer"}
+              {settings.footer ? settings.footer : "ThermoSlip · Order Print"}
             </div>
           </div>
         );

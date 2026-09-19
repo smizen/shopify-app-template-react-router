@@ -28,7 +28,7 @@ function Extension() {
     // Architectural requirement: strict blocking without silent truncation
     banner = (
       <s-banner tone="critical" heading="Order limit exceeded">
-        {`${count} orders selected. OrderJet supports up to 50 at once. Please select 50 or fewer.`}
+        {`${count} orders selected. ThermoSlip supports up to 50 at once. Please select 50 or fewer.`}
       </s-banner>
     );
     src = null;

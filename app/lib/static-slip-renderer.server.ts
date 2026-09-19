@@ -234,7 +234,7 @@ function renderOrderSlips(
       // Footer
       const footerText = settings.footer
         ? escapeHtml(settings.footer)
-        : "ThermoSlip · Order Printer";
+        : "ThermoSlip · Order Print";
       const footerHtml = `<div class="slip-footer">${footerText}</div>`;
 
       return `    <div

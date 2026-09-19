@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// ThermoSlip ‑ Order Printer — Shared Types
+// ThermoSlip Order Print — Shared Types
 // All identifiers use slug "thermoslip" — never the marketing name with dashes.
 // ─────────────────────────────────────────────────────────────────────────────
 

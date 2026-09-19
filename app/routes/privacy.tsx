@@ -2,21 +2,21 @@ import type { MetaFunction } from "react-router";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "ThermoSlip ‑ Order Printer — Privacy Policy" },
-    { name: "description", content: "Privacy Policy for ThermoSlip ‑ Order Printer Shopify App" },
+    { title: "ThermoSlip Order Print — Privacy Policy" },
+    { name: "description", content: "Privacy Policy for ThermoSlip Order Print Shopify App" },
   ];
 };
 
 export default function PrivacyPolicy() {
   return (
     <div style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif", maxWidth: 800, margin: "40px auto", padding: "0 20px", color: "#202223", lineHeight: 1.6 }}>
-      <h1 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>Privacy Policy — ThermoSlip ‑ Order Printer</h1>
+      <h1 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>Privacy Policy — ThermoSlip Order Print</h1>
       <p style={{ color: "#6d7175", marginBottom: "32px" }}>Last updated: September 16, 2026</p>
 
       <section style={{ marginBottom: "24px" }}>
         <h2 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>1. Introduction & Overview</h2>
         <p>
-          ThermoSlip ‑ Order Printer (&ldquo;ThermoSlip&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;) is an application built for Shopify merchants to format and print workshop packing slips directly to thermal printers (4x6 format). We are committed to protecting merchant and customer privacy through a <strong>Zero-PII Storage</strong> architecture.
+          ThermoSlip Order Print (&ldquo;ThermoSlip&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;) is an application built for Shopify merchants to format and print workshop packing slips directly to thermal printers (4x6 format). We are committed to protecting merchant and customer privacy through a <strong>Zero-PII Storage</strong> architecture.
         </p>
       </section>
 

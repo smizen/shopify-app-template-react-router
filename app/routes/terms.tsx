@@ -2,21 +2,21 @@ import type { MetaFunction } from "react-router";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "ThermoSlip ‑ Order Printer — Terms of Service" },
-    { name: "description", content: "Terms of Service and Conditions of Use for ThermoSlip ‑ Order Printer Shopify App" },
+    { title: "ThermoSlip Order Print — Terms of Service" },
+    { name: "description", content: "Terms of Service and Conditions of Use for ThermoSlip Order Print Shopify App" },
   ];
 };
 
 export default function TermsOfService() {
   return (
     <div style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif", maxWidth: 800, margin: "40px auto", padding: "0 20px", color: "#202223", lineHeight: 1.6 }}>
-      <h1 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>Terms of Service — ThermoSlip ‑ Order Printer</h1>
+      <h1 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>Terms of Service — ThermoSlip Order Print</h1>
       <p style={{ color: "#6d7175", marginBottom: "32px" }}>Last updated: September 19, 2026</p>
 
       <section style={{ marginBottom: "24px" }}>
         <h2 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>1. Acceptance of Terms</h2>
         <p>
-          By installing, accessing, or using <strong>ThermoSlip ‑ Order Printer</strong> (&ldquo;ThermoSlip&rdquo;, &ldquo;the App&rdquo;), operated by Devcraft Solutions (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;), you (&ldquo;Merchant&rdquo;, &ldquo;you&rdquo;) agree to be bound by these Terms of Service. If you do not agree to these terms, please uninstall and discontinue using the App immediately.
+          By installing, accessing, or using <strong>ThermoSlip Order Print</strong> (&ldquo;ThermoSlip&rdquo;, &ldquo;the App&rdquo;), operated by Devcraft Solutions (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;), you (&ldquo;Merchant&rdquo;, &ldquo;you&rdquo;) agree to be bound by these Terms of Service. If you do not agree to these terms, please uninstall and discontinue using the App immediately.
         </p>
       </section>
 

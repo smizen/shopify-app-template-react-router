@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { loader as indexLoader } from "../routes/app._index";
+import { loader as printLoader } from "../routes/app.print";
 import { authenticate } from "../shopify.server";
-import { getReadyToPackOrders } from "./orders.server";
+import { getReadyToPackOrders, getOrdersByIds } from "./orders.server";
 import { getAppUsage } from "./quota.server";
 import { DEMO_ORDERS } from "./demo-orders";
 
@@ -13,6 +14,9 @@ vi.mock("../shopify.server", () => ({
 
 vi.mock("./orders.server", () => ({
   getReadyToPackOrders: vi.fn(),
+  getOrdersByIds: vi.fn(),
+  getShopName: vi.fn().mockResolvedValue("Test Store"),
+  validateAndDedupeOrderIds: vi.fn((ids) => ids),
 }));
 
 vi.mock("./quota.server", () => ({
@@ -109,5 +113,43 @@ describe("Production Safety Guard — No Demo Orders in Production (Point 9)", (
     expect(result.orders).toEqual(DEMO_ORDERS);
     expect(result.isDemoMode).toBe(true);
     expect(result.isProduction).toBe(false);
+  });
+
+  it("never returns DEMO_ORDERS on /app/print when NODE_ENV=production on Protected Customer Data error", async () => {
+    process.env.NODE_ENV = "production";
+
+    vi.mocked(getOrdersByIds).mockRejectedValueOnce(
+      new Error("Access denied: protected-customer-data scope required")
+    );
+
+    const request = new Request("https://thermoslip-order-printer.fly.dev/app/print?orders=gid://shopify/Order/1");
+    const result = await printLoader({
+      request,
+      params: {},
+      context: {},
+    } as any);
+
+    expect(result.orders).toEqual([]);
+    expect(result.orders).not.toEqual(DEMO_ORDERS);
+    expect(result.error).toContain("Protected Customer Data");
+  });
+
+  it("never returns DEMO_ORDERS on /app/print when NODE_ENV=production on general API error", async () => {
+    process.env.NODE_ENV = "production";
+
+    vi.mocked(getOrdersByIds).mockRejectedValueOnce(
+      new Error("Shopify 500 Internal Error")
+    );
+
+    const request = new Request("https://thermoslip-order-printer.fly.dev/app/print?orders=gid://shopify/Order/1");
+    const result = await printLoader({
+      request,
+      params: {},
+      context: {},
+    } as any);
+
+    expect(result.orders).toEqual([]);
+    expect(result.orders).not.toEqual(DEMO_ORDERS);
+    expect(result.error).toBe("Shopify 500 Internal Error");
   });
 });

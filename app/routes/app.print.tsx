@@ -140,6 +140,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       err?.message?.includes("not approved to access the Order object");
 
     const settings = await getAppSettings(admin);
+    const isProduction = process.env.NODE_ENV === "production";
+
+    if (isProduction) {
+      return {
+        orders: [] as Order[],
+        shopName: "",
+        settings,
+        isReprint,
+        error: isProtectedDataError
+          ? "Access to Shopify Order data requires Protected Customer Data approval. Please contact support or check your app settings."
+          : err?.message || "Failed to load orders for printing.",
+      };
+    }
 
     if (isProtectedDataError) {
       const demoOrders = DEMO_ORDERS.slice(
