@@ -108,6 +108,7 @@ function renderOrderSlips(
       const headerHtml = isFirstPage
         ? `<div class="slip-header">
             <div class="slip-header-left">
+              <div class="slip-doc-type">Packing Slip</div>
               <div class="slip-shop-name">${headerShopName}</div>
               <div class="slip-order-date">${escapeHtml(formattedDate)}</div>
             </div>
@@ -118,6 +119,7 @@ function renderOrderSlips(
           </div>`
         : `<div class="slip-header slip-header--continuation">
             <div class="slip-header-left">
+              <div class="slip-doc-type">Packing Slip</div>
               <div class="slip-shop-name">${headerShopName}</div>
               <div class="slip-order-date">${escapeHtml(formattedDate)}</div>
             </div>
@@ -143,16 +145,24 @@ function renderOrderSlips(
           .map((w) => {
             const label =
               w.code === "MULTI_QTY"
-                ? "Multiple Qty"
+                ? "MULTI QTY"
                 : w.code === "CUSTOMER_NOTE"
-                  ? "Note"
+                  ? "NOTE"
                   : w.code === "EXPRESS"
-                    ? "Express"
+                    ? "EXPRESS"
                     : w.code;
-            return `<span class="slip-warning-badge slip-warning-badge--${w.code.toLowerCase()}">${label}</span>`;
+            const symbol =
+              w.code === "MULTI_QTY"
+                ? "×"
+                : w.code === "CUSTOMER_NOTE"
+                  ? "!"
+                  : w.code === "EXPRESS"
+                    ? "★"
+                    : "•";
+            return `<span class="slip-warning-badge slip-warning-badge--${w.code}"><span class="slip-warning-symbol">${symbol}</span><span class="slip-warning-label">${escapeHtml(label)}</span></span>`;
           })
           .join("");
-        warningsHtml = `<div class="slip-warnings-banner">${badgesHtml}</div>`;
+        warningsHtml = `<div class="slip-warnings">${badgesHtml}</div>`;
       }
 
       // Line items
@@ -178,8 +188,13 @@ function renderOrderSlips(
         })
         .join("");
       const itemsHtml = `<div class="slip-items">
-        <div class="slip-items-title">${itemsTitle}</div>
-        ${itemsRowsHtml}
+        <div class="slip-items-header">
+          <span class="slip-col-qty">QTY</span>
+          <span class="slip-items-title slip-col-desc">${itemsTitle}</span>
+        </div>
+        <div class="slip-items-body">
+          ${itemsRowsHtml}
+        </div>
       </div>`;
 
       // Shipping address (page 1 only)
@@ -191,14 +206,14 @@ function renderOrderSlips(
       ) {
         const formattedLines =
           order.shippingAddress?.formatted
-            ?.map((l) => `<div>${escapeHtml(l)}</div>`)
+            ?.map((l) => `<div class="slip-address-line">${escapeHtml(l)}</div>`)
             .join("") ?? "";
         const cityLine =
           order.shippingAddress?.city &&
           !order.shippingAddress.formatted?.some((l) =>
             l.includes(order.shippingAddress?.city || ""),
           )
-            ? `<div>${escapeHtml(order.shippingAddress.city)}${
+            ? `<div class="slip-address-line">${escapeHtml(order.shippingAddress.city)}${
                 order.shippingAddress.country
                   ? `, ${escapeHtml(order.shippingAddress.country)}`
                   : ""
@@ -211,8 +226,10 @@ function renderOrderSlips(
               ? `<div class="slip-recipient-name">${escapeHtml(recipientName)}</div>`
               : ""
           }
-          ${formattedLines}
-          ${cityLine}
+          <div class="slip-address-lines">
+            ${formattedLines}
+            ${cityLine}
+          </div>
         </div>`;
       }
 
@@ -221,7 +238,7 @@ function renderOrderSlips(
         isFirstPage && settings.showNotes && order.note
           ? `<div class="slip-note">
               <div class="slip-note-title">Note</div>
-              ${escapeHtml(order.note)}
+              <div class="slip-note-content">${escapeHtml(order.note)}</div>
             </div>`
           : "";
 

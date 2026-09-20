@@ -7,9 +7,11 @@
  * - #print-root   → always visible on screen; controls print output
  * - .packing-slip → one 4×6 label per order; break-after: page
  *
- * We do NOT use `body > *:not(#print-root) { display: none }` because
- * #print-root may be nested inside React root containers which would be
- * hidden by such a rule, taking the content with them.
+ * Thermal Printing Constraints:
+ * - Monochrome / 1-Bit clean black-and-white (pure #000 on #fff)
+ * - Zero dithered grays to prevent thermal head blur
+ * - High scannability for warehouse pick-and-pack in 1–2 seconds
+ * - Code 128 barcode 1:1 vector scaling preserved
  */
 
 /* ─── Print Media ─────────────────────────────────────────────────────────── */
@@ -60,6 +62,8 @@
     border-radius: 0 !important;
     border: none !important;
     background: white !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   /* No orphan page break on the last slip */
@@ -68,23 +72,67 @@
     page-break-after: auto !important;
   }
 
-  /* Prevent item rows from splitting across pages during multi-page (Story 3.3) */
+  /* Prevent item rows from splitting across pages during multi-page */
   .line-item-row {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+    border-bottom: 1px dotted #000 !important;
+  }
+
+  /* Ensure pure black-on-white high contrast for thermal print heads */
+  .slip-doc-type,
+  .slip-order-date,
+  .slip-carrier-name,
+  .line-item-name,
+  .line-item-sku,
+  .slip-address-lines,
+  .slip-note-content,
+  .slip-footer {
+    color: #000 !important;
+  }
+
+  .slip-address-lines {
+    font-weight: 600 !important;
+  }
+
+  /* Remove subtle screen background tints for 1-bit thermal clarity */
+  .slip-carrier-bar,
+  .slip-items-header,
+  .slip-address,
+  .slip-header--continuation {
+    background: transparent !important;
+  }
+
+  /* High contrast solid inverted badges */
+  .slip-carrier-label,
+  .slip-warning-badge--EXPRESS {
+    background: #000 !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .slip-warning-badge--MULTI_QTY {
+    background: #fff !important;
+    color: #000 !important;
+    border: 2px solid #000 !important;
+  }
+
+  .slip-warning-badge--CUSTOMER_NOTE {
+    background: #fff !important;
+    color: #000 !important;
+    border: 2px dashed #000 !important;
+  }
+
+  .slip-note {
+    background: transparent !important;
+    border: 1px solid #000 !important;
+    border-left: 3.5px solid #000 !important;
   }
 }
 
 /* ─── @page ────────────────────────────────────────────────────────────────── */
 
-/*
- * @page sets the target media size to 4×6 inches with zero margin.
- * Note: "zero margin" here means our CSS adds no margin.
- * The browser print dialog and printer driver may still apply their own
- * scaling, margins, or media-size detection. Physical zero-margin printing
- * requires configuring the printer driver as "no margins / full bleed"
- * — validated via physical test (Story 3.3 acceptance).
- */
 @page {
   size: 4in 6in;
   margin: 0;
@@ -93,8 +141,8 @@
 /* ─── Screen Preview ────────────────────────────────────────────────────────── */
 
 .print-preview-wrapper {
-  background-color: #f1f1f1;
-  padding: 24px;
+  background-color: #eceef1;
+  padding: 28px 16px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -104,45 +152,70 @@
 
 .print-preview-slip {
   width: 4in;
+  height: 6in;
   min-height: 6in;
+  max-height: 6in;
   box-sizing: border-box;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #d5d8de;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 10pt;
-  color: #111;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 9pt;
+  line-height: 1.3;
+  color: #000000;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ─── Slip Layout ─────────────────────────────────────────────────────────── */
+/* ─── Slip Header ─────────────────────────────────────────────────────────── */
 
 .slip-header {
-  padding: 8px 10px 6px;
-  border-bottom: 2px solid #111;
+  padding: 8px 12px 6px;
+  border-bottom: 2px solid #000000;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  background: #ffffff;
 }
 
 .slip-header-left {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
+  max-width: 2.1in;
+}
+
+.slip-doc-type {
+  font-size: 6.5pt;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #555555;
+  line-height: 1;
 }
 
 .slip-shop-name {
-  font-weight: bold;
+  font-weight: 800;
   font-size: 11pt;
+  letter-spacing: -0.2px;
+  line-height: 1.15;
+  color: #000000;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 1.8in;
+  max-width: 2.1in;
+  margin-top: 1px;
 }
 
 .slip-order-date {
-  font-size: 8.5pt;
-  color: #333;
+  font-size: 7.5pt;
+  font-weight: 500;
+  color: #555555;
+  margin-top: 1px;
+  line-height: 1.1;
 }
 
 .slip-order-meta {
@@ -154,254 +227,319 @@
 
 .slip-order-name {
   font-weight: 900;
-  font-size: 13pt;
-  letter-spacing: -0.5px;
-  line-height: 1.1;
+  font-size: 14pt;
+  letter-spacing: -0.4px;
+  line-height: 1;
+  color: #000000;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* ─── Code 128 Barcode (Story 3.2, FR-7) ─────────────────────────────────── */
+/* ─── Code 128 Barcode ────────────────────────────────────────────────────── */
 
 .slip-barcode {
   display: block;
-  margin-top: 3px;
-  /* Crucial for 203 DPI thermal print: natural 1:1 scale, zero CSS downscaling */
+  margin-top: 2px;
   width: auto;
   height: auto;
 }
 
 .slip-barcode-fallback {
-  font-family: "Courier New", Courier, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
   font-weight: bold;
   font-size: 9pt;
-  color: #000;
+  color: #000000;
 }
 
-/* ─── Carrier Bar (Top Third) ─────────────────────────────────────────────── */
+/* ─── Carrier Bar (Top Third, Page 1) ─────────────────────────────────────── */
 
 .slip-carrier-bar {
-  padding: 4px 10px;
-  background: #f4f4f4;
-  border-bottom: 1.5px solid #111;
-  font-size: 8.5pt;
+  padding: 4px 12px;
+  background: #f5f6f8;
+  border-bottom: 1.5px solid #000000;
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-@media print {
-  .slip-carrier-bar {
-    background: transparent !important;
-    border-bottom: 2px solid #000 !important;
-  }
+  gap: 8px;
+  font-size: 8pt;
 }
 
 .slip-carrier-label {
+  font-size: 6.5pt;
   font-weight: 900;
-  letter-spacing: 0.5px;
-  color: #000;
-  font-size: 8pt;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  background: #000000;
+  padding: 2px 5px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  line-height: 1;
+  display: inline-block;
 }
 
 .slip-carrier-name {
-  font-weight: 900;
-  color: #000;
+  font-size: 8.5pt;
+  font-weight: 800;
+  color: #000000;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  line-height: 1;
 }
 
-/* ─── Warnings (1-Bit Thermal Safe: Pure B&W, Zero Dithering) ─────────────── */
+/* ─── Warnings (1-Bit Thermal Safe) ───────────────────────────────────────── */
 
 .slip-warnings {
-  padding: 5px 10px;
+  padding: 5px 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  border-bottom: 1px dashed #000;
+  border-bottom: 1.5px solid #000000;
+  background: #ffffff;
 }
 
 .slip-warning-badge {
-  font-size: 8pt;
+  font-size: 7.5pt;
   font-weight: 900;
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: 2px;
   letter-spacing: 0.5px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
-/* White background + 2px solid black border */
+.slip-warning-symbol {
+  font-size: 8pt;
+  line-height: 1;
+}
+
+.slip-warning-label {
+  line-height: 1;
+}
+
+/* Multi-Qty: High contrast framed border */
 .slip-warning-badge--MULTI_QTY {
-  color: #000;
-  background: #fff;
-  border: 2px solid #000;
+  color: #000000;
+  background: #ffffff;
+  border: 2px solid #000000;
 }
 
-/* White background + 2px dashed black border */
+/* Customer Note: Dashed logistics callout */
 .slip-warning-badge--CUSTOMER_NOTE {
-  color: #000;
-  background: #fff;
-  border: 2px dashed #000;
+  color: #000000;
+  background: #ffffff;
+  border: 2px dashed #000000;
 }
 
-/* Solid black inverted box — maximum impact at 203 DPI */
+/* Express: Solid black inverted badge for maximum warehouse priority */
 .slip-warning-badge--EXPRESS {
-  color: #fff;
-  background: #000;
-  border: 2px solid #000;
+  color: #ffffff;
+  background: #000000;
+  border: 2px solid #000000;
 }
 
-/* ─── Continuation Header (Story 3.3, Multi-page) ─────────────────────────── */
+/* ─── Continuation Header (Multi-page Orders) ─────────────────────────────── */
 
 .slip-header--continuation {
-  padding: 4px 10px;
-  background: #fafafa;
-  border-bottom: 1.5px solid #000;
+  padding: 6px 12px 4px;
+  background: #fcfcfc;
+  border-bottom: 2px solid #000000;
 }
 
-@media print {
-  .slip-header--continuation {
-    background: transparent !important;
-    border-bottom: 2px solid #000 !important;
-  }
-}
-
-/* ─── Line Items ─────────────────────────────────────────────────────────── */
+/* ─── Line Items Mini-Table ───────────────────────────────────────────────── */
 
 .slip-items {
-  padding: 6px 10px;
-  border-bottom: 1px dashed #000;
+  padding: 0;
+  border-bottom: 1.5px solid #000000;
+  display: flex;
+  flex-direction: column;
 }
 
-.slip-items-title {
+.slip-items-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px;
+  background: #f5f6f8;
+  border-bottom: 1px solid #000000;
+}
+
+.slip-col-qty {
+  font-size: 7pt;
   font-weight: 900;
-  font-size: 8pt;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-  color: #000;
+  color: #000000;
+  min-width: 32px;
+  text-align: center;
+  line-height: 1;
+}
+
+.slip-items-title,
+.slip-col-desc {
+  font-size: 7pt;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #000000;
+  flex: 1;
+  line-height: 1;
+}
+
+.slip-items-body {
+  display: flex;
+  flex-direction: column;
 }
 
 .line-item-row {
   display: flex;
-  gap: 8px;
-  padding: 2.5px 0;
-  font-size: 9pt;
-  line-height: 1.25;
-  align-items: baseline;
+  align-items: center;
+  gap: 10px;
+  padding: 3.5px 12px;
+  border-bottom: 1px dotted #d0d0d0;
+  min-height: 25px;
   break-inside: avoid !important;
   page-break-inside: avoid !important;
 }
 
-/* Massive, bold quantity indicator to eliminate warehouse picking errors */
+.line-item-row:last-child {
+  border-bottom: none;
+}
+
+/* High-contrast bold quantity indicator */
 .line-item-qty {
-  font-size: 13pt;
+  font-size: 12pt;
   font-weight: 900;
-  min-width: 26px;
-  flex-shrink: 0;
-  color: #000;
+  min-width: 32px;
+  text-align: center;
+  color: #000000;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .line-item-details {
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
 }
 
 .line-item-name {
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #000;
-}
-
-.line-item-variant {
   font-size: 8.5pt;
-  color: #111;
-  font-style: italic;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* 100% black monospace SKU — clean contrast without dithering */
+/* Crisp monospace SKU */
 .line-item-sku {
-  font-size: 8pt;
-  font-weight: bold;
-  color: #000;
-  font-family: "Courier New", Courier, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 7.5pt;
+  font-weight: 700;
+  color: #333333;
+  letter-spacing: 0.3px;
+  line-height: 1.1;
 }
 
-/* ─── Shipping Address ───────────────────────────────────────────────────── */
+/* ─── Shipping Address Block ──────────────────────────────────────────────── */
 
 .slip-address {
-  padding: 5px 10px;
-  font-size: 9pt;
-  border-bottom: 1px dashed #000;
-  line-height: 1.4;
-  color: #000;
+  padding: 6px 12px;
+  border-bottom: 1.5px solid #000000;
+  font-size: 8.5pt;
+  line-height: 1.35;
+  color: #000000;
+  background: #fafafa;
 }
 
 .slip-address-title {
+  font-size: 6.5pt;
   font-weight: 900;
-  font-size: 8pt;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #000;
+  color: #000000;
   margin-bottom: 2px;
+  line-height: 1;
 }
 
-/* Recipient name must match carrier label exactly */
 .slip-recipient-name {
-  font-size: 10.5pt;
+  font-size: 9.5pt;
   font-weight: 900;
-  color: #000;
+  letter-spacing: -0.2px;
+  color: #000000;
+  line-height: 1.2;
   margin-bottom: 2px;
 }
 
-/* ─── Customer Note ──────────────────────────────────────────────────────── */
+.slip-address-lines {
+  font-size: 8pt;
+  font-weight: 500;
+  color: #222222;
+  line-height: 1.35;
+}
+
+.slip-address-line {
+  line-height: 1.35;
+}
+
+/* ─── Customer Note Callout ───────────────────────────────────────────────── */
 
 .slip-note {
+  margin: 5px 12px;
   padding: 5px 10px;
-  font-size: 9pt;
-  border-bottom: 1px dashed #000;
-  font-style: italic;
-  color: #000;
+  border: 1px solid #000000;
+  border-left: 3.5px solid #000000;
+  border-radius: 2px;
+  background: #ffffff;
 }
 
 .slip-note-title {
+  font-size: 6.5pt;
   font-weight: 900;
-  font-style: normal;
-  font-size: 8pt;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #000;
+  color: #000000;
   margin-bottom: 2px;
+  line-height: 1;
 }
 
-/* ─── Page Indicator (Multi-page Story 3.3) ───────────────────────────────── */
-
-.slip-page-indicator {
-  padding: 3px 10px;
-  font-size: 8pt;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-align: right;
-  color: #000;
-  border-top: 1px dashed #000;
-}
-
-/* ─── Footer ─────────────────────────────────────────────────────────────── */
-
-.slip-footer {
-  padding: 6px 10px;
+.slip-note-content {
   font-size: 8pt;
   font-weight: 600;
-  color: #222;
+  color: #000000;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ─── Page Indicator (Multi-page Orders) ──────────────────────────────────── */
+
+.slip-page-indicator {
+  padding: 3px 12px;
+  font-size: 7pt;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  text-align: right;
+  color: #000000;
+  border-top: 1px solid #000000;
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+
+.slip-footer {
+  padding: 6px 12px;
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
   text-align: center;
-  border-top: 1.5px solid #000;
+  color: #555555;
+  border-top: 1.5px solid #000000;
   margin-top: auto;
 }

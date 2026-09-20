@@ -62,6 +62,7 @@ export function PackingSlipPage({ order, settings, shopName }: PackingSlipPagePr
             {isFirstPage ? (
               <div className="slip-header">
                 <div className="slip-header-left">
+                  <div className="slip-doc-type">Packing Slip</div>
                   <div className="slip-shop-name">
                     {settings.showLogo && shopName ? shopName : "ThermoSlip"}
                   </div>
@@ -81,6 +82,7 @@ export function PackingSlipPage({ order, settings, shopName }: PackingSlipPagePr
             ) : (
               <div className="slip-header slip-header--continuation">
                 <div className="slip-header-left">
+                  <div className="slip-doc-type">Packing Slip</div>
                   <div className="slip-shop-name">
                     {settings.showLogo && shopName ? shopName : "ThermoSlip"}
                   </div>
@@ -112,28 +114,33 @@ export function PackingSlipPage({ order, settings, shopName }: PackingSlipPagePr
 
             {/* ── Line Items (Chunk of up to 8 items) ────────────────────────── */}
             <div className="slip-items">
-              <div className="slip-items-title">
-                {isFirstPage ? "Items to Pack" : "Items to Pack (Continued)"}
+              <div className="slip-items-header">
+                <span className="slip-col-qty">QTY</span>
+                <span className="slip-items-title slip-col-desc">
+                  {isFirstPage ? "Items to Pack" : "Items to Pack (Continued)"}
+                </span>
               </div>
-              {chunk.map((item) => {
-                const itemTitle = item.variantTitle
-                  ? `${item.title} / ${item.variantTitle}`
-                  : item.title;
+              <div className="slip-items-body">
+                {chunk.map((item) => {
+                  const itemTitle = item.variantTitle
+                    ? `${item.title} / ${item.variantTitle}`
+                    : item.title;
 
-                return (
-                  <div key={item.id} className="line-item-row">
-                    <span className="line-item-qty">{item.quantityToPack}×</span>
-                    <div className="line-item-details">
-                      <div className="line-item-name" title={itemTitle}>
-                        {itemTitle}
+                  return (
+                    <div key={item.id} className="line-item-row">
+                      <span className="line-item-qty">{item.quantityToPack}×</span>
+                      <div className="line-item-details">
+                        <div className="line-item-name" title={itemTitle}>
+                          {itemTitle}
+                        </div>
+                        {settings.showSku && item.sku && (
+                          <div className="line-item-sku">SKU: {item.sku}</div>
+                        )}
                       </div>
-                      {settings.showSku && item.sku && (
-                        <div className="line-item-sku">SKU: {item.sku}</div>
-                      )}
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
             {/* ── Shipping Address (Page 1 only) ────────────────────────────── */}
@@ -145,20 +152,22 @@ export function PackingSlipPage({ order, settings, shopName }: PackingSlipPagePr
                   {recipientName && (
                     <div className="slip-recipient-name">{recipientName}</div>
                   )}
-                  {order.shippingAddress?.formatted.map((line, i) => (
-                    <div key={i}>{line}</div>
-                  ))}
-                  {order.shippingAddress?.city &&
-                    !order.shippingAddress.formatted.some((l) =>
-                      l.includes(order.shippingAddress?.city || "")
-                    ) && (
-                      <div>
-                        {order.shippingAddress.city}
-                        {order.shippingAddress.country
-                          ? `, ${order.shippingAddress.country}`
-                          : ""}
-                      </div>
-                    )}
+                  <div className="slip-address-lines">
+                    {order.shippingAddress?.formatted.map((line, i) => (
+                      <div key={i} className="slip-address-line">{line}</div>
+                    ))}
+                    {order.shippingAddress?.city &&
+                      !order.shippingAddress.formatted.some((l) =>
+                        l.includes(order.shippingAddress?.city || "")
+                      ) && (
+                        <div className="slip-address-line">
+                          {order.shippingAddress.city}
+                          {order.shippingAddress.country
+                            ? `, ${order.shippingAddress.country}`
+                            : ""}
+                        </div>
+                      )}
+                  </div>
                 </div>
               )}
 
@@ -166,7 +175,7 @@ export function PackingSlipPage({ order, settings, shopName }: PackingSlipPagePr
             {isFirstPage && settings.showNotes && order.note && (
               <div className="slip-note">
                 <div className="slip-note-title">Note</div>
-                {order.note}
+                <div className="slip-note-content">{order.note}</div>
               </div>
             )}
 

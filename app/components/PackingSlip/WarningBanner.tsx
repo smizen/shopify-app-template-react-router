@@ -12,8 +12,7 @@ interface WarningBannerProps {
 
 /**
  * Renders packing warning badges optimized for thermal print.
- * Uses plain CSS classes (no Polaris) so that styles are fully predictable
- * at print time without Polaris CSS specificity interference.
+ * Pure 1-bit monochrome styling: solid black, bold borders, zero dithering.
  */
 export function WarningBanner({ warnings }: WarningBannerProps) {
   if (warnings.length === 0) return null;
@@ -27,7 +26,8 @@ export function WarningBanner({ warnings }: WarningBannerProps) {
             key={w.code}
             className={`slip-warning-badge slip-warning-badge--${w.code}`}
           >
-            {config.symbol} {config.label}
+            <span className="slip-warning-symbol">{config.symbol}</span>
+            <span className="slip-warning-label">{config.label}</span>
           </span>
         );
       })}
