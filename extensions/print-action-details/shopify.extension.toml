@@ -1,0 +1,11 @@
+api_version = "2026-07"
+uid = "983e51c9-895a-74aa-2006-ba977552d2ab3a8f456b"
+
+[[extensions]]
+name = "ThermoSlip Order Details Print"
+handle = "print-action-details"
+type = "ui_extension"
+
+[[extensions.targeting]]
+module = "./src/PrintActionExtension.jsx"
+target = "admin.order-details.print-action.render"

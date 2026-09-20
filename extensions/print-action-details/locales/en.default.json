@@ -1,0 +1,6 @@
+{
+  "name": "ThermoSlip Packing Slips",
+  "noOrders": "Please select at least one order to print packing slips.",
+  "limitExceeded": "Order limit exceeded. ThermoSlip supports up to 50 at once. Please select 50 or fewer.",
+  "readyToPrint": "Ready to print thermal packing slips."
+}

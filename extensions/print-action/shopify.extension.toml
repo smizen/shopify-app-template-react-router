@@ -9,7 +9,3 @@ uid = "49839740-2235-40ea-c549-aec26a9dfb64973e240e"
 [[extensions.targeting]]
 module = "./src/PrintActionExtension.jsx"
 target = "admin.order-index.selection-print-action.render"
-
-[[extensions.targeting]]
-module = "./src/PrintActionExtension.jsx"
-target = "admin.order-details.print-action.render"
